@@ -66,20 +66,20 @@ export const PixelProvider: React.FC<PixelProviderProps> = ({ children }) => {
             
             if (response.ok) {
                 setEspStatus('online');
-                console.log('ESP32 is online');
+                // console.log('ESP32 is online');
             } else {
                 setEspStatus('offline');
-                console.log('ESP32 responded but with error');
+                // console.log('ESP32 responded but with error');
             }
         } catch (error) {
             setEspStatus('offline');
-            console.log('ESP32 is offline:', error);
+            // console.log('ESP32 is offline:', error);
         }
     };
 
     const fetchCurrentPixels = async () => {
         if (espStatus !== 'online') {
-            console.log('ESP32 is not online, skipping pixel fetch');
+            // console.log('ESP32 is not online, skipping pixel fetch');
             return;
         }
 
@@ -107,7 +107,7 @@ export const PixelProvider: React.FC<PixelProviderProps> = ({ children }) => {
 
     const setColor = async (rgbColor: RGBColor) => {
         if (espStatus !== 'online') {
-            console.log('ESP32 is not online, cannot set color');
+            // console.log('ESP32 is not online, cannot set color');
             return;
         }
 
@@ -142,7 +142,7 @@ export const PixelProvider: React.FC<PixelProviderProps> = ({ children }) => {
 
     const setPixelPreset = async (preset: IPreset) => {
         if (espStatus !== 'online') {
-            console.log('ESP32 is not online, cannot set preset');
+            // console.log('ESP32 is not online, cannot set preset');
             return;
         }
 
