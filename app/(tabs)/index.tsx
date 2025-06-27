@@ -1,15 +1,11 @@
 import Ring from "@/components/Ring";
 import Icons from "@/components/ui/Icons";
-import { useEffect, useState } from "react";
+import { usePixels } from "@/contexts/PixelContext";
 import { Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function HomeScreen() {
-  const [pixels, setPixels] = useState<string[]>([]);
-
-  useEffect(() => {
-    setPixels(Array.from({ length: 12 }).fill("255,255,0") as string[]);
-  }, []);
+  const { pixels } = usePixels();
 
   return (
     <View className="flex-1 bg-zinc-950">

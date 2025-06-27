@@ -1,3 +1,4 @@
+import { PixelProvider } from '@/contexts/PixelContext';
 import "@/global.css";
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
@@ -16,14 +17,14 @@ export default function RootLayout() {
   }
 
   return (
-
-    <View className="bg-zinc-950 flex-1">
-      <Stack screenOptions={{ animation: "simple_push", contentStyle: { backgroundColor: "#000000" } }}>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false, contentStyle: { backgroundColor: "#000000" } }} />
-        <Stack.Screen name="+not-found" />
-      </Stack>
-      <StatusBar style="auto" />
-    </View>
-
+    <PixelProvider>
+      <View className="bg-zinc-950 flex-1">
+        <Stack screenOptions={{ animation: "simple_push", contentStyle: { backgroundColor: "#000000" } }}>
+          <Stack.Screen name="(tabs)" options={{ headerShown: false, contentStyle: { backgroundColor: "#000000" } }} />
+          <Stack.Screen name="+not-found" />
+        </Stack>
+        <StatusBar style="auto" />
+      </View>
+    </PixelProvider>
   );
 }
