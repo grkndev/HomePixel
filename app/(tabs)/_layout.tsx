@@ -9,6 +9,8 @@ export default function TabLayout() {
       tabBar={(props) => <TabBarComponent {...props} />}
 
       screenOptions={{
+        animation: "fade",
+        sceneStyle: { backgroundColor: "#09090b" },
 
         tabBarHideOnKeyboard: true,
         tabBarActiveTintColor: "#FA0250",

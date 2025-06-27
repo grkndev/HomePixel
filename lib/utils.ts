@@ -104,3 +104,74 @@ export interface RGBColor {
     );
   };
   
+  /**
+   * Converts an array of RGB strings to hex color array
+   * @param rgbStringArray - Array of RGB strings in format "r,g,b" (e.g., ["255,0,0", "0,255,0"])
+   * @returns Array of HEX color strings (e.g., ["#FF0000", "#00FF00"])
+   */
+  export const rgbStringArrayToHexArray = (rgbStringArray: string[]): string[] => {
+    return rgbStringArray.map(rgbString => {
+      const [r, g, b] = rgbString.split(',').map(num => parseInt(num.trim(), 10));
+      
+      if (!isValidRgb(r, g, b)) {
+        console.warn(`Invalid RGB values: ${rgbString}`);
+        return "#000000"; // Return black for invalid values
+      }
+      
+      return rgbToHex(r, g, b);
+    });
+  };
+
+  /**
+   * Creates a CSS linear gradient string from an array of hex colors
+   * @param hexColors - Array of hex color strings
+   * @param direction - Gradient direction (default: "45deg")
+   * @returns CSS linear gradient string
+   */
+  export const createGradientFromColors = (hexColors: string[], direction: string = "45deg"): string => {
+    if (hexColors.length === 0) {
+      return "linear-gradient(45deg, #000000, #000000)";
+    }
+    
+    if (hexColors.length === 1) {
+      return `linear-gradient(${direction}, ${hexColors[0]}, ${hexColors[0]})`;
+    }
+    
+    const colorStops = hexColors.map((color, index) => {
+      const percentage = (index / (hexColors.length - 1)) * 100;
+      return `${color} ${percentage}%`;
+    }).join(", ");
+    
+    return `linear-gradient(${direction}, ${colorStops})`;
+  };
+
+  /**
+   * Creates a radial gradient string from an array of hex colors for blur effects
+   * @param hexColors - Array of hex color strings
+   * @param opacity - Opacity for the colors (0-1)
+   * @returns CSS radial gradient string with opacity
+   */
+  export const createBlurGradientFromColors = (hexColors: string[], opacity: number = 0.6): string => {
+    if (hexColors.length === 0) {
+      return "radial-gradient(circle, rgba(0,0,0,0.1), rgba(0,0,0,0))";
+    }
+    
+    // Convert hex colors to rgba with opacity
+    const rgbaColors = hexColors.map(hex => {
+      const rgb = hexToRgb(hex);
+      if (!rgb) return "rgba(0,0,0,0.1)";
+      return `rgba(${rgb.r},${rgb.g},${rgb.b},${opacity})`;
+    });
+    
+    if (rgbaColors.length === 1) {
+      return `radial-gradient(circle, ${rgbaColors[0]}, rgba(0,0,0,0))`;
+    }
+    
+    const colorStops = rgbaColors.map((color, index) => {
+      const percentage = (index / (rgbaColors.length - 1)) * 100;
+      return `${color} ${percentage}%`;
+    }).join(", ");
+    
+    return `radial-gradient(circle, ${colorStops}, rgba(0,0,0,0))`;
+  };
+  
