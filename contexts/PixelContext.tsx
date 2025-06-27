@@ -13,6 +13,8 @@ interface RGBColor {
     b: number;
 }
 
+type ESPStatus = 'online' | 'offline' | 'checking';
+
 interface PixelContextType {
     pixels: string[];
     setPixels: (pixels: string[]) => void;
@@ -20,8 +22,10 @@ interface PixelContextType {
     setPixelPreset: (preset: IPreset) => Promise<void>;
     setColor: (rgbColor: RGBColor) => Promise<void>;
     fetchCurrentPixels: () => Promise<void>;
+    checkESPStatus: () => Promise<void>;
     isLoading: boolean;
     activePreset: string;
+    espStatus: ESPStatus;
 }
 
 const PixelContext = createContext<PixelContextType | undefined>(undefined);
@@ -44,7 +48,41 @@ export const PixelProvider: React.FC<PixelProviderProps> = ({ children }) => {
     );
     const [isLoading, setIsLoading] = useState(false);
     const [activePreset, setActivePreset] = useState<string>("");
+    const [espStatus, setEspStatus] = useState<ESPStatus>('checking');
+
+    const checkESPStatus = async () => {
+        try {
+            setEspStatus('checking');
+            
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 saniye timeout
+            
+            const response = await fetch("http://192.168.1.7/status", {
+                method: 'GET',
+                signal: controller.signal,
+            });
+            
+            clearTimeout(timeoutId);
+            
+            if (response.ok) {
+                setEspStatus('online');
+                console.log('ESP32 is online');
+            } else {
+                setEspStatus('offline');
+                console.log('ESP32 responded but with error');
+            }
+        } catch (error) {
+            setEspStatus('offline');
+            console.log('ESP32 is offline:', error);
+        }
+    };
+
     const fetchCurrentPixels = async () => {
+        if (espStatus !== 'online') {
+            console.log('ESP32 is not online, skipping pixel fetch');
+            return;
+        }
+
         try {
             const response = await fetch("http://192.168.1.7/current");
             const data = await response.json();
@@ -58,6 +96,8 @@ export const PixelProvider: React.FC<PixelProviderProps> = ({ children }) => {
             }
         } catch (error) {
             console.error('Error fetching current pixels:', error);
+            // ESP yanıt vermiyorsa status'u offline yap
+            setEspStatus('offline');
         }
     };
 
@@ -66,6 +106,11 @@ export const PixelProvider: React.FC<PixelProviderProps> = ({ children }) => {
     };
 
     const setColor = async (rgbColor: RGBColor) => {
+        if (espStatus !== 'online') {
+            console.log('ESP32 is not online, cannot set color');
+            return;
+        }
+
         setIsLoading(true);
         try {
             const colorString = rgbToColorString(rgbColor);
@@ -83,15 +128,24 @@ export const PixelProvider: React.FC<PixelProviderProps> = ({ children }) => {
             if (response.ok) {
                 // ESP32'den güncel pixel durumunu al
                 await fetchCurrentPixels();
+            } else {
+                // ESP yanıt vermiyorsa status'u offline yap
+                setEspStatus('offline');
             }
         } catch (error) {
             console.error('Error setting color:', error);
+            setEspStatus('offline');
         } finally {
             setIsLoading(false);
         }
     };
 
     const setPixelPreset = async (preset: IPreset) => {
+        if (espStatus !== 'online') {
+            console.log('ESP32 is not online, cannot set preset');
+            return;
+        }
+
         setIsLoading(true);
         try {
             // ESP32'ye preset gönder
@@ -99,21 +153,41 @@ export const PixelProvider: React.FC<PixelProviderProps> = ({ children }) => {
                 method: "POST",
                 body: JSON.stringify({ preset: preset.name })
             });
-
+            
             if (response.ok) {
                 // ESP32'den güncel pixel durumunu al
                 await fetchCurrentPixels();
+            } else {
+                // ESP yanıt vermiyorsa status'u offline yap
+                setEspStatus('offline');
             }
         } catch (error) {
             console.error('Error setting preset:', error);
+            setEspStatus('offline');
         } finally {
             setIsLoading(false);
         }
     };
 
-    // Uygulama başlangıcında mevcut pixel durumunu çek
+    // Uygulama başlangıcında ESP status kontrol et
     useEffect(() => {
-        fetchCurrentPixels();
+        checkESPStatus();
+    }, []);
+
+    // ESP online olduğunda pixel durumunu çek
+    useEffect(() => {
+        if (espStatus === 'online') {
+            fetchCurrentPixels();
+        }
+    }, [espStatus]);
+
+    // Periyodik status kontrolü (30 saniyede bir)
+    useEffect(() => {
+        const interval = setInterval(() => {
+            checkESPStatus();
+        }, 30000); // 30 saniye
+
+        return () => clearInterval(interval);
     }, []);
 
     const value: PixelContextType = {
@@ -124,8 +198,9 @@ export const PixelProvider: React.FC<PixelProviderProps> = ({ children }) => {
         setPixelPreset,
         setColor,
         fetchCurrentPixels,
+        checkESPStatus,
         isLoading,
-
+        espStatus,
     };
 
     return (
