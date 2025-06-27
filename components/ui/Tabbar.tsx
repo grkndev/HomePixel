@@ -1,7 +1,6 @@
-import { cn } from '@/lib/utils'
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs'
 import React, { useEffect, useState } from 'react'
-import { Keyboard, Text, TouchableOpacity, View } from 'react-native'
+import { Keyboard, TouchableOpacity, View } from 'react-native'
 import Icons from './Icons'
 
 const TabBarComponent = ({ state, descriptors, navigation }: BottomTabBarProps) => {
@@ -32,21 +31,37 @@ const TabBarComponent = ({ state, descriptors, navigation }: BottomTabBarProps) 
     return (
         <>
             {!isKeyboardVisible && (
-                <View className='border-zinc-800 border-t bg-zinc-950 flex flex-row items-center justify-center w-full h-24'>
+                <View className='border-zinc-800 border-t bg-zinc-950 flex flex-row items-center justify-around w-full h-24'>
                     {/* HOME */}
                     <TouchableOpacity
                         onPress={() => navigation.navigate("index")}
                         className={`flex h-full w-1/4 items-center justify-center gap-1`}>
 
-                        <Icons name={"Palette"} color={currentRoute === 'index' ? '#FA0250' : '#71717a'} />
-                        <Text
+                        <Icons name={"House"} color={currentRoute === 'index' ? '#FA0250' : '#71717a'} />
+                        {/* <Text
                             className={
                                 cn(
                                     'text-xs ',
                                     currentRoute === 'index' ? ' font-bold text-[#FA0250]' : 'text-zinc-500'
                                 )
 
-                            }>Renk Paleti</Text>
+                            }>Anasayfa</Text> */}
+                    </TouchableOpacity>
+
+                    {/* COLOR PALETTE */}
+                    <TouchableOpacity
+                        onPress={() => navigation.navigate("colorpalette")}
+                        className={`flex h-full w-1/4 items-center justify-center gap-1`}>
+
+                        <Icons name={"Palette"} color={currentRoute === 'colorpalette' ? '#FA0250' : '#a1a1aa'} />
+                        {/* <Text
+                            className={
+
+                                cn(
+                                    'text-xs',
+                                    currentRoute === 'colorpalette' ? ' font-bold text-[#FA0250]' : 'text-zinc-400'
+                                )
+                            }>Renk Paleti</Text> */}
                     </TouchableOpacity>
 
                     {/* SAVED */}
@@ -55,14 +70,14 @@ const TabBarComponent = ({ state, descriptors, navigation }: BottomTabBarProps) 
                         className={`flex h-full w-1/4 items-center justify-center gap-1`}>
 
                         <Icons name={"Save"} color={currentRoute === 'saved' ? '#FA0250' : '#a1a1aa'} />
-                        <Text
+                        {/* <Text
                             className={
 
                                 cn(
                                     'text-xs',
                                     currentRoute === 'saved' ? ' font-bold text-[#FA0250]' : 'text-zinc-400'
                                 )
-                            }>Kaydedilenler</Text>
+                            }>Kaydedilenler</Text> */}
                     </TouchableOpacity>
 
 
